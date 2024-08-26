@@ -8,5 +8,6 @@ app.use(express.json());
 connectDB();
 
 app.use('/api', require('./routes/postRoutes'));
+app.use('/api', require('./routes/userRouter'));
 
 module.exports = app;

@@ -1,14 +1,37 @@
 const Post = require('../models/Post');
+const User = require('../models/User');
 
 exports.createPost = async (req, res) => {
     try {
-        const post = new Post(req.body);
-        await post.save();
-        res.status(201).json(post);
+        const { userId, id, title, body } = req.body;
+
+        // Find the user by userId
+        const findUser = await User.findById(userId);
+        if (!findUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Create a new post with the user's ObjectId
+        const newPost = new Post({
+            userId, 
+            id, 
+            title, 
+            body, 
+            user: findUser._id 
+        });
+        await newPost.save();
+
+        // Add the post's ID to the user's posts array
+        findUser.posts.push(newPost._id);
+        await findUser.save();
+
+        res.status(201).json(newPost);
     } catch (error) {
         res.status(400).json({ message: 'Failed to create post', error });
     }
 };
+
+
 
 exports.getPosts = async (req, res) => {
     try {
@@ -21,7 +44,7 @@ exports.getPosts = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
     try {
-        const post = await Post.findOne({ id: req.params.id });
+        const post = await Post.findOne({ _id: req.params.id });
         if (post) {
             res.status(200).json(post);
         } else {
@@ -35,7 +58,7 @@ exports.getPostById = async (req, res) => {
 exports.updatePost = async (req, res) => {
     try {
         const updatedPost = await Post.findOneAndUpdate(
-            { id: req.params.id },
+            { _id: req.params.id },
             { $set: req.body },
             { new: true }
         );
@@ -51,7 +74,7 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
     try {
-        const deletedPost = await Post.findOneAndDelete({ id: req.params.id });
+        const deletedPost = await Post.findOneAndDelete({ _id: req.params.id });
         if (deletedPost) {
             res.status(200).json({ message: 'Post deleted successfully' });
         } else {
