@@ -5,11 +5,10 @@ This application allows you to manage users and their associated blog posts. You
 The project includes endpoints for handling CRUD operations for both users and blog posts.
 
 ### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Youssef2666/express_mongodb_api.git
-    
+## Clone the repository:
+```
+git clone https://github.com/Youssef2666/express_mongodb_api.git
+ ```
 
 ## Navigate to the project directory:
 ```bash
