@@ -44,7 +44,7 @@ exports.getPosts = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
     try {
-        const post = await Post.findOne({ _id: req.params.id });
+        const post = await Post.findById({ _id: req.params.id });
         if (post) {
             res.status(200).json(post);
         } else {
@@ -74,8 +74,15 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
     try {
+        // Find and delete the post
         const deletedPost = await Post.findOneAndDelete({ _id: req.params.id });
         if (deletedPost) {
+            // Find the user who owns this post and remove the post ID from their posts array
+            await User.updateOne(
+                { _id: deletedPost.user },
+                { $pull: { posts: deletedPost._id } }
+            );
+
             res.status(200).json({ message: 'Post deleted successfully' });
         } else {
             res.status(404).json({ message: 'Post not found' });
